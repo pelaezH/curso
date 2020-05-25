@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -27,45 +28,29 @@ class _MyHomePageState extends State<MyHomePage> {
     final alto = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: Color(0xfff4f4f4),
+      appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: Color(0xfff4f4f4),
+        title: Text(
+          'MyHomeWorks',
+          style: TextStyle(color: Colors.grey, fontSize: 20),
+        ),
+        elevation: 0.0,
+      ),
       body: SafeArea(
         child: Stack(
           children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                IconButton(icon: Icon(Icons.description), onPressed: null)
-              ],
-            ),
             Column(
               children: <Widget>[
                 Expanded(
-                  flex: 3,
-                  child: Container(
-                    //color: Colors.grey,
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              'MyHomeWorks',
-                              style:
-                                  TextStyle(color: Colors.grey, fontSize: 20),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Image.asset(
-                              'images/images7.png',
-                              height: 200,
-                            ),
-                          )
-                        ],
+                    flex: 3,
+                    child: Padding(
+                      padding: const EdgeInsets.all(30.0),
+                      child: Image.asset(
+                        'images/images7.png',
+                        height: 200,
                       ),
-                    ),
-                  ),
-                ),
+                    )),
                 Expanded(
                   flex: 5,
                   child: Container(
@@ -94,101 +79,89 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         Expanded(
                           flex: 13,
-                          child: SingleChildScrollView(
-                            child: Column(
-                              children: <Widget>[
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      top: 8.0,
-                                      left: 20.0,
-                                      right: 20.0,
-                                      bottom: 8.0),
-                                  child: InkWell(
-                                    onTap: () => {
-                                      showModalBottomSheet(
-                                          elevation: alto * 0.8,
-                                          backgroundColor:
-                                              Color.fromRGBO(0, 0, 0, 0),
-                                          //shape:
-                                          context: context,
-                                          isScrollControlled: true,
-                                          builder: (context) {
-                                            return HomeWorkModal();
-                                          }),
-                                    },
-                                    child: Container(
-                                      height: alto * .1,
-                                      decoration: BoxDecoration(
-                                          color: Color(0xfff4f4f4),
-                                          borderRadius:
-                                              BorderRadius.circular(20)),
-                                      child: Row(
-                                        children: <Widget>[
-                                          Expanded(
-                                            flex: 1,
-                                            child: Center(
-                                              child: Icon(
-                                                Icons.attach_file,
-                                                color: Colors.grey,
-                                                size: 40,
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 50.0),
+                            child: StreamBuilder<QuerySnapshot>(
+                              stream: Firestore.instance
+                                  .collection('works')
+                                  .snapshots(),
+                              builder: (BuildContext context,
+                                  AsyncSnapshot<QuerySnapshot> snapshot) {
+                                if (snapshot.hasError)
+                                  return new Center(
+                                      child: Text('Error: ${snapshot.error}'));
+                                switch (snapshot.connectionState) {
+                                  case ConnectionState.waiting:
+                                    return Center(
+                                        child: new CircularProgressIndicator());
+                                  default:
+                                    return new ListView(
+                                      children: snapshot.data.documents
+                                          .map((DocumentSnapshot document) {
+                                        return Padding(
+                                          padding: const EdgeInsets.only(
+                                              top: 8.0,
+                                              left: 20.0,
+                                              right: 20.0,
+                                              bottom: 8.0),
+                                          child: InkWell(
+                                            onTap: () => {
+                                              //print(document.documentID),
+                                              showModalBottomSheet(
+                                                  elevation: alto * 0.8,
+                                                  backgroundColor:
+                                                      Color.fromRGBO(
+                                                          0, 0, 0, 0),
+                                                  context: context,
+                                                  isScrollControlled: true,
+                                                  builder: (context) {
+                                                    return _homeWorkModal(
+                                                        context, document);
+                                                  }),
+                                            },
+                                            child: Container(
+                                              height: alto * .1,
+                                              decoration: BoxDecoration(
+                                                  color: Color(0xfff4f4f4),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          20)),
+                                              child: Row(
+                                                children: <Widget>[
+                                                  Expanded(
+                                                    flex: 1,
+                                                    child: Center(
+                                                      child: Icon(
+                                                        document['subject'] ==
+                                                                "Matematicas"
+                                                            ? Icons.functions
+                                                            : Icons.attach_file,
+                                                        color: Colors.grey,
+                                                        size: 40,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 4,
+                                                    child: Center(
+                                                      child: ListTile(
+                                                        title: new Text(
+                                                            document['title']),
+                                                        subtitle: new Text(
+                                                            document[
+                                                                'subject']),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                           ),
-                                          Expanded(
-                                            flex: 4,
-                                            child: Center(
-                                              child: ListTile(
-                                                title: new Text(
-                                                    'Mapa Conceptual: Seres Vivos'),
-                                                subtitle: new Text('Biologia'),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      top: 8.0,
-                                      left: 20.0,
-                                      right: 20.0,
-                                      bottom: 8.0),
-                                  child: Container(
-                                    height: alto * .1,
-                                    decoration: BoxDecoration(
-                                        color: Color(0xfff4f4f4),
-                                        borderRadius:
-                                            BorderRadius.circular(20)),
-                                    child: Row(
-                                      children: <Widget>[
-                                        Expanded(
-                                          flex: 1,
-                                          child: Center(
-                                            child: Icon(
-                                              Icons.functions,
-                                              color: Colors.grey,
-                                              size: 40,
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 4,
-                                          child: Center(
-                                            child: ListTile(
-                                              title: new Text(
-                                                  'Resolver 10 Derivadas Pag. 443'),
-                                              subtitle: new Text(
-                                                  'Calculo Diferencial'),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
+                                        );
+                                      }).toList(),
+                                    );
+                                }
+                              },
                             ),
                           ),
                         ),
@@ -232,92 +205,98 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-}
 
-class HomeWorkModal extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    MediaQueryData queryData;
-    queryData = MediaQuery.of(context);
+  Widget _homeWorkModal(BuildContext context, DocumentSnapshot document) {
+    final ancho = MediaQuery.of(context).size.width;
+    final alto = MediaQuery.of(context).size.height;
+    print(document.documentID);
+    print(document.data['title']);
     return Container(
-        decoration: BoxDecoration(
-          color: Color(0xfff4f4f4),
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(30),
-            topRight: Radius.circular(30),
-          ),
+      decoration: BoxDecoration(
+        color: Color(0xfff4f4f4),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30),
         ),
-        width: queryData.size.width,
-        height: (queryData.size.height) * 0.4,
-        child: Column(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Icon(
-                Icons.functions,
-                color: Colors.grey,
-                size: 50,
+      ),
+      width: ancho,
+      height: alto * 0.4,
+      child: Column(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Icon(
+              document['subject'] == "Matematicas"
+                  ? Icons.functions
+                  : Icons.attach_file,
+              color: Colors.grey,
+              size: 50,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Center(
+                child: Text(
+              document.data['title'],
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            )),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(
+              child: Text(document.data['subject']),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+                left: 8.0, right: 8.0, top: 40.0, bottom: 8.0),
+            child: InkWell(
+              onTap: () {
+                Navigator.of(context).pop();
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color: Color(0xffffffff)),
+                width: ancho,
+                height: alto * 0.05,
+                child: Center(
+                    child: Text(
+                  'Volver a la lista',
+                  style: TextStyle(color: Colors.grey),
+                )),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Center(
-                  child: Text(
-                'Mapa Conceptual: Seres Vivos',
-                style: TextStyle(
-                  fontSize: 20,
-                ),
-              )),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Center(
-                child: Text('Biología'),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: InkWell(
+              onTap: () {
+                Firestore.instance
+                    .collection("works")
+                    .document(document.documentID)
+                    .delete();
+                Navigator.of(context).pop();
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color: Color(0xffc94b7a)),
+                width: ancho,
+                height: alto * 0.05,
+                child: Center(
+                    child: Text(
+                  'Tarea Hecha',
+                  style: TextStyle(color: Colors.white),
+                )),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(
-                  left: 8.0, right: 8.0, top: 40.0, bottom: 8.0),
-              child: InkWell(
-                onTap: () {
-                  Navigator.of(context).pop();
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color: Color(0xffffffff)),
-                  width: queryData.size.width,
-                  height: (queryData.size.height) * 0.05,
-                  child: Center(
-                      child: Text(
-                    'Volver a la lista',
-                    style: TextStyle(color: Colors.grey),
-                  )),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: InkWell(
-                onTap: () {
-                  Navigator.of(context).pop();
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color: Color(0xffc94b7a)),
-                  width: queryData.size.width,
-                  height: (queryData.size.height) * 0.05,
-                  child: Center(
-                      child: Text(
-                    'Tarea Hecha',
-                    style: TextStyle(color: Colors.white),
-                  )),
-                ),
-              ),
-            ),
-          ],
-        ));
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -376,20 +355,20 @@ class _NewHomeWorkState extends State<NewHomeWork> {
                 Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: TextField(
-                    obscureText: true,
+                    controller: _tituloController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
-                      labelText: 'title',
+                      labelText: 'Title',
                     ),
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: TextField(
-                    obscureText: true,
+                    controller: _materiaController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
-                      labelText: 'subject',
+                      labelText: 'Subject',
                     ),
                   ),
                 ),
@@ -397,17 +376,60 @@ class _NewHomeWorkState extends State<NewHomeWork> {
                   padding: const EdgeInsets.all(8.0),
                   child: InkWell(
                     onTap: () {
-                      Navigator.of(context).pop();
+                      if (_tituloController.text.isNotEmpty) {
+                        if (_materiaController.text.isNotEmpty) {
+                          Firestore.instance
+                              .collection('works')
+                              .document()
+                              .setData({
+                            'title': _tituloController.text,
+                            'subject': _materiaController.text
+                          });
+                          _materiaController.clear();
+                          _tituloController.clear();
+                          Navigator.of(context).pop();
+                        } else {
+                          print('subject vacio');
+                          showDialog(
+                              context: context,
+                              builder: (_) {
+                                return AlertDialog(
+                                  title: Center(
+                                      child: Text('Subject field is empty')),
+                                  content: Image.asset(
+                                    'images/image4.png',
+                                    height: 150,
+                                  ),
+                                );
+                              });
+                        }
+                      } else {
+                        print('title vacio');
+                        showDialog(
+                            context: context,
+                            builder: (_) {
+                              return AlertDialog(
+                                title:
+                                    Center(child: Text('Title field is empty')),
+                                content: Image.asset(
+                                  'images/image4.png',
+                                  height: 150,
+                                ),
+                              );
+                            });
+
+                        //print('titulo vacio');
+                      }
                     },
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
-                          gradient: LinearGradient(
-                      colors: [
-                        Color(0xff6441a9),
-                        Color(0xff634db5),
-                      ],
-                    ),
+                        gradient: LinearGradient(
+                          colors: [
+                            Color(0xff6441a9),
+                            Color(0xff634db5),
+                          ],
+                        ),
                       ),
                       width: queryData.width,
                       height: (queryData.height) * 0.05,

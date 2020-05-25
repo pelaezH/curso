@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "564979605821",
+    "firebase_url": "https://testcurso-c04a3.firebaseio.com",
+    "project_id": "testcurso-c04a3",
+    "storage_bucket": "testcurso-c04a3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:564979605821:android:93ac92bd2f2d19ebc72554",
+        "android_client_info": {
+          "package_name": "sp.workshop.pruebawork"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "564979605821-hr8guo536o3r7ljnvehb56g793pojfa5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuiW4NHK5ydoAzM3Uejzp6lT0HKBQCZ5Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "564979605821-hr8guo536o3r7ljnvehb56g793pojfa5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
